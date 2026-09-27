@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CJGATEPOIN - Global Exchange</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { bg: '#060B19', card: '#111827', border: '#1F2937', primary: '#3B82F6', up: '#10B981', down: '#EF4444', accent: '#F7A600' }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    ::-webkit-scrollbar { display: none; }
+    body { -ms-overflow-style: none; scrollbar-width: none; background-color: #060B19; color: #F3F4F6; user-select: none; }
+    #aiFloatingBtn { touch-action: none; cursor: grab; }
+    .typing-cursor::after {
+      content: '|';
+      animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col pb-24">
+
+  <!-- ================= HEADER ATAS ================= -->
+  <header class="bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-3 py-3 flex items-center justify-between sticky top-0 z-40 gap-2">
+    <!-- Profil Umum (Kiri) -->
+    <div onclick="openProfile()" class="w-9 h-9 rounded-full bg-slate-800 border border-brand-border flex items-center justify-center cursor-pointer overflow-hidden shadow text-slate-300 hover:border-brand-primary flex-shrink-0">
+      <i data-lucide="user" class="w-5 h-5"></i>
+    </div>
+
+    <!-- Kolom Search -->
+    <div class="relative flex-grow">
+      <div class="bg-brand-bg rounded-full flex items-center px-4 py-2 w-full border border-brand-border focus-within:border-brand-primary shadow-inner">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 mr-2.5 flex-shrink-0"></i>
+        <input type="text" id="searchInput" onfocus="openSearchDropdown()" onblur="closeSearchDropdown()" placeholder="Cari Koin, Saham, atau Tren 24 Jam..." class="bg-transparent text-xs text-white outline-none w-full">
+      </div>
+
+      <!-- Dropdown Hasil Pencarian & Top Gainers -->
+      <div id="searchDropdown" class="hidden absolute top-12 left-0 w-full bg-brand-card border border-brand-border rounded-2xl p-3 shadow-2xl z-50 space-y-3">
+        <div class="flex justify-between items-center text-[10px] text-amber-400 font-bold uppercase tracking-wider border-b border-brand-border pb-1.5">
+          <span>🔥 NAIK DRASTIS 24 JAM (TOP GAINERS)</span>
+        </div>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between items-center hover:bg-slate-900 p-1.5 rounded cursor-pointer">
+            <span class="text-white font-bold">NVIDIA (NVDA) <span class="text-[10px] text-slate-400">Saham</span></span>
+            <span class="text-emerald-400 font-mono font-bold">+14.85%</span>
+          </div>
+          <div class="flex justify-between items-center hover:bg-slate-900 p-1.5 rounded cursor-pointer">
+            <span class="text-white font-bold">SOL / USDT <span class="text-[10px] text-slate-400">Kripto</span></span>
+            <span class="text-emerald-400 font-mono font-bold">+11.20%</span>
+          </div>
+          <div class="flex justify-between items-center hover:bg-slate-900 p-1.5 rounded cursor-pointer">
+            <span class="text-white font-bold">TESLA (TSLA) <span class="text-[10px] text-slate-400">Saham</span></span>
+            <span class="text-emerald-400 font-mono font-bold">+9.45%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bagian Kanan: Live Chat, Notifikasi, & Logo Asli -->
+    <div class="flex items-center space-x-2 text-slate-300 flex-shrink-0">
+      <div onclick="openLiveChat()" class="w-8 h-8 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center cursor-pointer relative hover:border-brand-primary">
+        <i data-lucide="headphones" class="w-4 h-4 text-brand-primary"></i>
+      </div>
+      <div onclick="alert('Tidak ada notifikasi baru.')" class="w-8 h-8 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center cursor-pointer relative hover:border-brand-primary">
+        <i data-lucide="bell" class="w-4 h-4"></i>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-down rounded-full"></span>
+      </div>
+      
+      <!-- Logo Ikon Asli di Kanan Header -->
+      <div class="w-9 h-9 rounded-xl border border-amber-400 overflow-hidden shadow-[0_0_10px_rgba(247,166,0,0.6)] bg-slate-900 flex items-center justify-center flex-shrink-0">
+        <img src="https://drive.google.com/uc?export=view&id=145v-C91A1YRdSbvsuQEnTErmKn_5YPZS" class="w-full h-full object-cover">
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= WIDGET SALDO REAL-TIME & KONVERSI ================= -->
+  <section class="px-4 pt-4 pb-2">
+    <div class="bg-gradient-to-r from-brand-card to-slate-900 border border-brand-border rounded-2xl p-4 shadow-lg flex justify-between items-center">
+      <div>
+        <span class="text-[11px] text-slate-400 block mb-0.5">Estimasi Total Saldo</span>
+        <h2 class="text-2xl font-black text-white font-mono" id="displayBalance">1,500.00</h2>
+        <span class="text-xs font-bold text-emerald-400" id="displayCurrencyLabel">USDT</span>
+      </div>
+      <div>
+        <select id="currencySelector" onchange="changeCurrency(this.value)" class="bg-brand-bg border border-brand-border text-xs text-brand-primary font-bold rounded-lg p-2 outline-none cursor-pointer">
+          <option value="USDT">USDT</option>
+          <option value="IDR">IDR (Rupiah)</option>
+          <option value="BTC">BTC (Bitcoin)</option>
+          <option value="USD">USD ($)</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= KONTEN HALAMAN UTAMA ================= -->
+  <main class="flex-grow p-4 space-y-4">
+    
+    <!-- Halaman 1: Beranda -->
+    <div id="page-home" class="space-y-4">
+      <div class="bg-brand-card border border-brand-border rounded-xl p-5 text-center relative overflow-hidden space-y-3">
+        <!-- Logo Icon Asli Berukuran Besar di Beranda -->
+        <div class="w-24 h-24 rounded-2xl border-2 border-amber-400 mx-auto overflow-hidden shadow-2xl bg-slate-900 flex items-center justify-center">
+          <img src="https://drive.google.com/uc?export=view&id=145v-C91A1YRdSbvsuQEnTErmKn_5YPZS" class="w-full h-full object-cover">
+        </div>
+        
+        <h3 class="font-black text-white text-lg tracking-wide">CJGATEPOIN</h3>
+        
+        <!-- Teks Sambutan Mengetik Aktif -->
+        <div class="bg-brand-bg/60 border border-brand-border p-3 rounded-xl min-h-[50px] flex items-center justify-center">
+          <p id="typingText" class="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-blue-400 to-emerald-400 typing-cursor"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Halaman 2: Pasar -->
+    <div id="page-market" class="hidden space-y-3">
+      <h3 class="font-bold text-white text-sm">Pasar Global Live</h3>
+      <div class="bg-brand-card border border-brand-border rounded-xl p-3 space-y-2">
+        <div class="flex justify-between items-center py-2 border-b border-brand-border">
+          <span class="font-bold text-white">BTC / USDT</span>
+          <span class="font-mono text-emerald-400 font-bold" id="liveBtcPrice">$64,250.00</span>
+        </div>
+        <div class="flex justify-between items-center py-2">
+          <span class="font-bold text-white">NVIDIA (NVDA)</span>
+          <span class="font-mono text-emerald-400 font-bold">$128.00 (+14.85%)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Halaman 3: Beli atau Jual -->
+    <div id="page-trade" class="hidden space-y-3">
+      <h3 class="font-bold text-white text-sm">Eksekusi Beli / Jual Instan</h3>
+      <div class="bg-brand-card border border-brand-border rounded-xl p-4 space-y-3">
+        <div class="flex bg-brand-bg rounded-lg p-1">
+          <button class="flex-1 py-2 font-bold bg-brand-up text-white rounded text-xs">Beli</button>
+          <button class="flex-1 py-2 font-bold text-slate-400 text-xs">Jual</button>
+        </div>
+        <input type="number" placeholder="Jumlah" class="w-full bg-brand-bg border border-brand-border p-2.5 rounded text-xs text-white font-mono outline-none">
+        <button class="w-full bg-brand-up text-white font-bold py-2.5 rounded text-xs">Eksekusi Cepat</button>
+      </div>
+    </div>
+
+    <!-- Halaman 4: Pertukaran (Swap) -->
+    <div id="page-exchange" class="hidden space-y-3">
+      <h3 class="font-bold text-white text-sm">Pertukaran Koin Instan (Swap)</h3>
+      <div class="bg-brand-card border border-brand-border rounded-xl p-4 space-y-3 text-xs">
+        <div class="bg-brand-bg p-3 rounded border border-brand-border flex justify-between">
+          <span>Dari: USDT</span> <span class="font-bold font-mono">1,500.00</span>
+        </div>
+        <div class="text-center"><i data-lucide="arrow-down-up" class="w-5 h-5 mx-auto text-brand-primary"></i></div>
+        <div class="bg-brand-bg p-3 rounded border border-brand-border flex justify-between">
+          <span>Ke: BTC</span> <span class="font-bold font-mono">0.0233</span>
+        </div>
+        <button onclick="alert('Pertukaran Berhasil!')" class="w-full bg-brand-primary text-white font-bold py-3 rounded">Tukar Sekarang</button>
+      </div>
+    </div>
+
+    <!-- Halaman 5: Aset -->
+    <div id="page-wallet" class="hidden space-y-3">
+      <h3 class="font-bold text-white text-sm">Dompet Aset Pengguna</h3>
+      <div class="bg-brand-card border border-brand-border rounded-xl p-4 space-y-2 text-xs">
+        <div class="flex justify-between py-2 border-b border-brand-border"><span>USDT</span> <span class="font-mono font-bold">1,500.00</span></div>
+        <div class="flex justify-between py-2"><span>BTC</span> <span class="font-mono font-bold">0.0000</span></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= WIDGET ASISTEN AI BERGERAK (DRAGGABLE) ================= -->
+  <div id="aiFloatingBtn" onclick="openAIChat()" class="fixed bottom-24 right-4 z-50 bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-3.5 rounded-full shadow-2xl flex items-center justify-center border-2 border-white/30 cursor-pointer animate-bounce">
+    <i data-lucide="bot" class="w-6 h-6"></i>
+    <span class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-ping"></span>
+  </div>
+
+  <!-- ================= MODAL PROFIL ================= -->
+  <div id="profileModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-brand-card border border-brand-border w-full max-w-sm rounded-2xl p-6 space-y-4 relative text-center">
+      <div class="w-20 h-20 rounded-full border-2 border-brand-primary mx-auto overflow-hidden shadow-xl mb-2 bg-slate-900 flex items-center justify-center text-slate-300">
+        <i data-lucide="user" class="w-10 h-10"></i>
+      </div>
+      <h3 class="font-bold text-white text-lg">Akun Trader CJGATEPOIN</h3>
+      <div class="bg-brand-bg p-3 rounded-xl border border-brand-border text-left space-y-1.5 text-xs text-slate-300">
+        <p>Email: <span class="text-white font-bold">trader@cjgatepoin.app</span></p>
+        <p>UID: <span class="text-white font-bold">88291044</span></p>
+        <p>Status VIP: <span class="text-brand-primary font-bold">VIP 0 (Regular)</span></p>
+      </div>
+      <button onclick="closeProfile()" class="w-full bg-brand-primary text-white font-bold py-2.5 rounded-lg text-xs">Tutup Profil</button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL AI CHAT ================= -->
+  <div id="aiModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-brand-card border border-brand-border w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl relative">
+      <div class="flex justify-between items-center border-b border-brand-border pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center text-white"><i data-lucide="bot" class="w-4 h-4"></i></div>
+          <h4 class="font-bold text-white text-sm">Asisten AI CJGATEPOIN</h4>
+        </div>
+        <i data-lucide="x" onclick="closeAIChat()" class="w-5 h-5 text-slate-400 cursor-pointer"></i>
+      </div>
+      <div class="h-48 bg-brand-bg rounded-xl p-3 overflow-y-auto text-xs space-y-2 font-mono">
+        <div class="text-slate-400 bg-slate-900 p-2 rounded">Halo! Saya asisten AI Anda. Silakan tanyakan apa saja seputar analisa pasar atau fitur platform.</div>
+      </div>
+      <div class="flex space-x-2">
+        <input type="text" placeholder="Tanya AI..." class="flex-grow bg-brand-bg border border-brand-border p-2 rounded text-xs text-white outline-none">
+        <button onclick="alert('AI merespon!')" class="bg-brand-primary text-white px-4 py-2 rounded text-xs font-bold">Kirim</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL LIVE CHAT ================= -->
+  <div id="chatModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-brand-card border border-brand-border w-full max-w-sm rounded-2xl p-5 space-y-4 relative text-center">
+      <h3 class="font-bold text-white text-base border-b border-brand-border pb-2">Live Support Customer Service</h3>
+      <p class="text-xs text-slate-400">Tim dukungan online 24/7 siap membantu kendala deposit atau withdraw Anda.</p>
+      <button onclick="closeLiveChat()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded text-xs">Tutup Chat</button>
+    </div>
+  </div>
+
+  <!-- ================= BOTTOM NAVIGATION BAR (5 MENU UTAMA) ================= -->
+  <nav class="fixed bottom-0 w-full bg-brand-card/95 backdrop-blur-md border-t border-brand-border flex justify-around py-2 z-40 pb-safe">
+    <button onclick="switchPage('home')" id="nav-home" class="flex flex-col items-center text-brand-primary w-1/5">
+      <i data-lucide="home" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Beranda</span>
+    </button>
+    <button onclick="switchPage('market')" id="nav-market" class="flex flex-col items-center text-slate-400 w-1/5">
+      <i data-lucide="bar-chart-2" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Pasar</span>
+    </button>
+    <button onclick="switchPage('trade')" id="nav-trade" class="flex flex-col items-center text-slate-400 w-1/5">
+      <i data-lucide="arrow-left-right" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Beli/Jual</span>
+    </button>
+    <button onclick="switchPage('exchange')" id="nav-exchange" class="flex flex-col items-center text-slate-400 w-1/5">
+      <i data-lucide="refresh-cw" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Pertukaran</span>
+    </button>
+    <button onclick="switchPage('wallet')" id="nav-wallet" class="flex flex-col items-center text-slate-400 w-1/5">
+      <i data-lucide="wallet" class="w-5 h-5 mb-0.5"></i><span class="text-[10px]">Aset</span>
+    </button>
+  </nav>
+
+  <script>
+    let baseUsdtBalance = 1500.00;
+
+    window.onload = () => {
+      lucide.createIcons();
+      initDraggableAI();
+      startTypingEffect();
+    };
+
+    function startTypingEffect() {
+      const textElement = document.getElementById('typingText');
+      const sentence = "Selamat Datang Di CJGATEPOIN Dengan Analisis Saham Global Yang Sangat Memanas Setiap Akhir Pekan";
+      let index = 0;
+
+      function typeWriter() {
+        if (index < sentence.length) {
+          textElement.innerHTML += sentence.charAt(index);
+          index++;
+          setTimeout(typeWriter, 45);
+        } else {
+          setTimeout(() => {
+            textElement.innerHTML = "";
+            index = 0;
+            typeWriter();
+          }, 3000);
+        }
+      }
+      typeWriter();
+    }
+
+    function switchPage(page) {
+      ['home','market','trade','exchange','wallet'].forEach(p => {
+        document.getElementById(`page-${p}`).classList.add('hidden');
+        document.getElementById(`nav-${p}`).className = "flex flex-col items-center text-slate-400 w-1/5";
+      });
+      document.getElementById(`page-${page}`).classList.remove('hidden');
+      document.getElementById(`nav-${page}`).className = "flex flex-col items-center text-brand-primary w-1/5";
+    }
+
+    function changeCurrency(curr) {
+      const display = document.getElementById('displayBalance');
+      const label = document.getElementById('displayCurrencyLabel');
+
+      if(curr === 'USDT') {
+        display.innerText = baseUsdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+        label.innerText = 'USDT';
+      } else if(curr === 'IDR') {
+        const idr = baseUsdtBalance * 15500;
+        display.innerText = idr.toLocaleString('id-ID');
+        label.innerText = 'IDR';
+      } else if(curr === 'BTC') {
+        const btc = baseUsdtBalance / 64250;
+        display.innerText = btc.toFixed(6);
+        label.innerText = 'BTC';
+      } else if(curr === 'USD') {
+        display.innerText = baseUsdtBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+        label.innerText = 'USD';
+      }
+    }
+
+    function openSearchDropdown() {
+      document.getElementById('searchDropdown').classList.remove('hidden');
+    }
+    function closeSearchDropdown() {
+      setTimeout(() => { document.getElementById('searchDropdown').classList.add('hidden'); }, 200);
+    }
+
+    function openProfile() { document.getElementById('profileModal').classList.remove('hidden'); }
+    function closeProfile() { document.getElementById('profileModal').classList.add('hidden'); }
+    function openLiveChat() { document.getElementById('chatModal').classList.remove('hidden'); }
+    function closeLiveChat() { document.getElementById('chatModal').classList.add('hidden'); }
+    function openAIChat() { document.getElementById('aiModal').classList.remove('hidden'); }
+    function closeAIChat() { document.getElementById('aiModal').classList.add('hidden'); }
+
+    function initDraggableAI() {
+      const btn = document.getElementById('aiFloatingBtn');
+      let isDragging = false, initialX, initialY;
+
+      btn.addEventListener('touchstart', dragStart, {passive: true});
+      btn.addEventListener('touchmove', drag, {passive: true});
+      btn.addEventListener('touchend', dragEnd);
+
+      btn.addEventListener('mousedown', dragStart);
+      window.addEventListener('mousemove', drag);
+      window.addEventListener('mouseup', dragEnd);
+
+      function dragStart(e) {
+        initialX = (e.clientX || e.touches[0].clientX) - (btn._x || 0);
+        initialY = (e.clientY || e.touches[0].clientY) - (btn._y || 0);
+        isDragging = true;
+      }
+
+      function drag(e) {
+        if (!isDragging) return;
+        let currentX = (e.clientX || e.touches[0].clientX) - initialX;
+        let currentY = (e.clientY || e.touches[0].clientY) - initialY;
+        btn._x = currentX; btn._y = currentY;
+        btn.style.transform = `translate(${currentX}px, ${currentY}px)`;
+      }
+
+      function dragEnd() { isDragging = false; }
+    }
+  </script>
+</body>
+</html>
